@@ -2,8 +2,7 @@ package com.csci448.trentdouglas.draganddraw
 
 import android.graphics.PointF
 
-class Box(val start: PointF) {
-    var end: PointF = start
+class Box(val start: PointF, var end: PointF) {
     val left: Float
         get() = Math.min(start.x, end.x)
     val right: Float
