@@ -27,6 +27,7 @@ class BoxDrawingView(context: Context, attrs: AttributeSet? = null) : View(conte
     private var ballAcceleration:PointF = PointF(0f, 0f)
     private var priorTime = System.currentTimeMillis()
     private var ball = Ball(PointF(100f,100f), 50f)
+    private var light = 0
     public var scaleFactor = 1.0f
     val displayMetrics = DisplayMetrics()
     private val boxPaint = Paint().apply{
@@ -45,6 +46,12 @@ class BoxDrawingView(context: Context, attrs: AttributeSet? = null) : View(conte
         ballAcceleration.x = acceleration.x/10000
         ballAcceleration.y = acceleration.y/10000
     }
+
+    public fun setLight(lightValue:Float){
+        light = lightValue.toInt()
+        Log.d(LOG_TAG, "${light}")
+    }
+
 
 
     override fun onDraw(canvas: Canvas) {

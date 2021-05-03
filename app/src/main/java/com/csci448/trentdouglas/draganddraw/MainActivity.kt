@@ -20,6 +20,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         setContentView(R.layout.activity_main)
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT)
         boxDrawingView = findViewById(R.id.main_activity)
         supportActionBar?.hide()
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
@@ -27,19 +28,29 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
     private lateinit var sensorManager:SensorManager
     private lateinit var accelerometer:Sensor
+    private lateinit var lightSensor:Sensor
 
 
 
     override fun onSensorChanged(event: SensorEvent?) {
-        val xAccel = event?.values?.get(0) ?: 0.0f
-        val yAccel = event?.values?.get(1) ?: 0.0f
-        boxDrawingView.setAcceleration(PointF(xAccel, yAccel))
-        Log.d(LOG_TAG, "x accel = ${xAccel}")
-        Log.d(LOG_TAG, "y accel = ${yAccel}")
+        if(event!!.sensor.type == Sensor.TYPE_ACCELEROMETER){
+            val xAccel = event?.values?.get(0) ?: 0.0f
+            val yAccel = event?.values?.get(1) ?: 0.0f
+            boxDrawingView.setAcceleration(PointF(xAccel, yAccel))
+
+            Log.d(LOG_TAG, "x accel = ${xAccel}")
+            Log.d(LOG_TAG, "y accel = ${yAccel}")
+        }
+        else if(event!!.sensor.type == Sensor.TYPE_LIGHT){
+            Log.d(LOG_TAG, "light! ${event?.values?.get(0)}")
+            boxDrawingView.setLight(event?.values?.get(0)!!)
+        }
+
     }
 
     override fun onResume() {
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME)
+        sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_GAME)
         super.onResume()
     }
 
