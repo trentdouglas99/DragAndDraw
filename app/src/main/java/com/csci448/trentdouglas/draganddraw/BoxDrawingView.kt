@@ -33,6 +33,7 @@ class BoxDrawingView(context: Context, attrs: AttributeSet? = null) : View(conte
     private var ball = Ball(PointF(100f, 100f), 50f)
     private var box = Box(PointF(200f, 200f), PointF(400f, 400f))
     private var light = 0
+    private var win:Boolean = false
     public var scaleFactor = 1.0f
     var rect:Rect = Rect(box.left.toInt(), box.top.toInt(), box.right.toInt(), box.bottom.toInt())
     var bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.dvd)
@@ -48,6 +49,10 @@ class BoxDrawingView(context: Context, attrs: AttributeSet? = null) : View(conte
         color = Color.GREEN
         alpha = 255
     }
+    private val textBrush = Paint().apply{
+        color = Color.BLACK
+        textSize = 100F
+    }
     private val boxBrush = Paint().apply{
         background = resources.getDrawable(R.drawable.ic_launcher_background)
         //color = Color.YELLOW
@@ -57,13 +62,21 @@ class BoxDrawingView(context: Context, attrs: AttributeSet? = null) : View(conte
     }
 
     public fun setAcceleration(acceleration: PointF){
-        boxAcceleration.x = acceleration.x/10000
-        boxAcceleration.y = acceleration.y/10000
+        if(win){
+            boxAcceleration.x = 0f
+            boxAcceleration.y = 0f
+
+        }
+        else{
+            boxAcceleration.x = acceleration.x/10000
+            boxAcceleration.y = acceleration.y/10000
+        }
+
     }
 
     public fun setLight(lightValue: Float){
         light = lightValue.toInt()
-        Log.d(LOG_TAG, "${light}")
+        //Log.d(LOG_TAG, "${light}")
     }
 
 
@@ -88,8 +101,26 @@ class BoxDrawingView(context: Context, attrs: AttributeSet? = null) : View(conte
 
         bitmap = BitmapFactory.decodeResource(context.resources, list_of_dvds[list_of_dvds_index])
 
-        canvas.drawRect(box.left, box.top, box.right, box.bottom, boxBrush)
-        canvas.drawBitmap(bitmap, null, rect, boxBrush)
+
+        if(win){
+            canvas.drawText("You did it! ", 500f, 500f, textBrush)
+            canvas.drawText("Now Sit back and enjoy...", 180f, 600f, textBrush)
+
+        }
+        else{
+            rect.left = box.left.toInt()
+            rect.right = box.right.toInt()
+            rect.top = box.top.toInt()
+            rect.bottom = box.bottom.toInt()
+            if(list_of_dvds_index >= 4){
+                list_of_dvds_index = 0
+            }
+        }
+
+            canvas.drawRect(box.left, box.top, box.right, box.bottom, boxBrush)
+            canvas.drawBitmap(bitmap, null, rect, boxBrush)
+
+
 
 
         updateBoxPosition()
@@ -99,20 +130,23 @@ class BoxDrawingView(context: Context, attrs: AttributeSet? = null) : View(conte
     private fun checkForDark(){
         if(light < 100){
             backgroundPaint.color = Color.DKGRAY
-            Log.d(LOG_TAG, "dark mode")
+            //Log.d(LOG_TAG, "dark mode")
         }
         else{
             backgroundPaint.color = Color.BLUE
-            Log.d(LOG_TAG, "light mode")
+            //Log.d(LOG_TAG, "light mode")
         }
         invalidate()
     }
+
+
 
     private fun updateBoxPosition(){
 
         //Log.d(LOG_TAG, "acceleration x: ${ballAcceleration.x}, acceleration y: ${ballAcceleration.y}")
         var currentTime = System.currentTimeMillis()
         var elapsedTime = currentTime - priorTime
+
         priorTime = currentTime
         boxVelocity.x += 0-(boxAcceleration.x * elapsedTime)
         boxVelocity.y += boxAcceleration.y * elapsedTime
@@ -120,6 +154,32 @@ class BoxDrawingView(context: Context, attrs: AttributeSet? = null) : View(conte
         box.start.y += boxVelocity.y * elapsedTime
         box.end.x += boxVelocity.x * elapsedTime
         box.end.y += boxVelocity.y * elapsedTime
+
+
+
+
+        if(box.start.x.toInt() == 0 && box.start.y.toInt() == 0){
+            win = true
+            boxVelocity.x = .6f
+            boxVelocity.y = .5f
+        }
+        if(box.start.y.toInt() + 200 == height && box.end.x.toInt() - 200 == 0){
+            win = true
+            boxVelocity.x = .6f
+            boxVelocity.y = .5f
+        }
+        if(box.end.x.toInt() == width && box.end.y.toInt() == height){
+            win = true
+            boxVelocity.x = .6f
+            boxVelocity.y = .5f
+        }
+        if(box.start.x.toInt() + 200 == width && box.end.y.toInt() - 200 == 0){
+            win = true
+            boxVelocity.x = .6f
+            boxVelocity.y = .5f
+        }
+
+
 
         if(box.start.x <= 0f){
             box.start.x = 0f
@@ -158,39 +218,6 @@ class BoxDrawingView(context: Context, attrs: AttributeSet? = null) : View(conte
 
 
 
-//    override fun onTouchEvent(event: MotionEvent): Boolean {
-//        scaleListener.onTouchEvent(event)
-//        if(!scaleListener.isInProgress) {
-//            val current = PointF(event.x/scaleFactor, event.y/scaleFactor)
-//            var action = ""
-//            when (event.action){
-//                MotionEvent.ACTION_DOWN -> {
-//                    action = "ACTION_DOWN"
-//                    currentBox = Box(current).also{
-//                        boxen.add(it)
-//                    }
-//                }
-//                MotionEvent.ACTION_MOVE -> {
-//                    action = "ACTION_MOVE"
-//                    updateCurrentBox(current)
-//                }
-//                MotionEvent.ACTION_UP ->{
-//                    action = "ACTION_UP"
-//                    updateCurrentBox(current)
-//                    currentBox = null
-//                }
-//                MotionEvent.ACTION_CANCEL->{
-//                    action = "ACTION_CANCEL"
-//                    currentBox = null
-//                }
-//            }
-//            Log.d(LOG_TAG, "$$action at x=${current.x}, y=$current.y}")
-//        }
-//
-//        return true
-//    }
-
-
     private fun updateCurrentBox(current: PointF){
         currentBox?.let{
             it.end = current
@@ -221,21 +248,7 @@ class BoxDrawingView(context: Context, attrs: AttributeSet? = null) : View(conte
             super.onRestoreInstanceState(state)
             return
         }
-//        val inState = state as Bundle
-//        val parentState: Parcelable? = inState.getParcelable(BUNDLE_SAVE_PARENT_STATE)
-//        super.onRestoreInstanceState(parentState)
-//        val boxPoints: List<Float> = inState.getFloatArray(BUNDLE_SAVE_BOX_POINTS)?.toList() ?: listOf()
-//
-//        var box:Box
-//        var start:PointF
-//        var end:PointF
-//        for (i in 0..boxPoints.size-4 step 4){
-//            start = PointF(boxPoints[i], boxPoints[i+1])
-//            end = PointF(boxPoints[i+2], boxPoints[i+3])
-//            box = Box(start)
-//            box.end = end
-//            boxen.add(box)
-//        }
+
 
     }
 
