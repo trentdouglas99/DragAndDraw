@@ -2,32 +2,43 @@ package com.csci448.trentdouglas.draganddraw
 
 import android.content.Context
 import android.graphics.*
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.AttributeSet
 import android.util.DisplayMetrics
 import android.util.Log
-import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
-import androidx.annotation.ColorRes
+
 
 class BoxDrawingView(context: Context, attrs: AttributeSet? = null) : View(context, attrs) {
 
-    private var BOUNCE_FACTOR = -.75f
+    private var BOUNCE_FACTOR = -1f
     val LOG_TAG = "BoxDrawingView: "
-    private val scaleListener: ScaleGestureDetector = ScaleGestureDetector(context, ScaleListener(this))
+    private val scaleListener: ScaleGestureDetector = ScaleGestureDetector(
+        context, ScaleListener(
+            this
+        )
+    )
+    private val list_of_dvds = arrayListOf(R.drawable.dvd_green, R.drawable.dvd_yellow, R.drawable.dvd_white, R.drawable.dvd_red)
+    private var list_of_dvds_index = 0
     private var currentBox: Box? = null
     private val BUNDLE_SAVE_BOX_POINTS = "bundleSaveBoxPoints"
     private val BUNDLE_SAVE_PARENT_STATE = "parceable"
     private val boxen = mutableListOf<Box>()
-    private var boxVelocity:PointF = PointF(0f,0f)
+    private var boxVelocity:PointF = PointF(0f, 0f)
     private var boxAcceleration:PointF = PointF(0f, 0f)
     private var priorTime = System.currentTimeMillis()
-    private var ball = Ball(PointF(100f,100f), 50f)
-    private var box = Box(PointF(200f, 200f), PointF(300f, 300f) )
+    private var ball = Ball(PointF(100f, 100f), 50f)
+    private var box = Box(PointF(200f, 200f), PointF(400f, 400f))
     private var light = 0
     public var scaleFactor = 1.0f
+    var rect:Rect = Rect(box.left.toInt(), box.top.toInt(), box.right.toInt(), box.bottom.toInt())
+    var bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.dvd)
+
+
+
     val displayMetrics = DisplayMetrics()
     private val boxPaint = Paint().apply{
         color = Color.RED
@@ -36,6 +47,10 @@ class BoxDrawingView(context: Context, attrs: AttributeSet? = null) : View(conte
     private val greenBrush = Paint().apply{
         color = Color.GREEN
         alpha = 255
+    }
+    private val boxBrush = Paint().apply{
+        background = resources.getDrawable(R.drawable.ic_launcher_background)
+        //color = Color.YELLOW
     }
     private val backgroundPaint = Paint().apply {
         color = Color.BLACK
@@ -46,7 +61,7 @@ class BoxDrawingView(context: Context, attrs: AttributeSet? = null) : View(conte
         boxAcceleration.y = acceleration.y/10000
     }
 
-    public fun setLight(lightValue:Float){
+    public fun setLight(lightValue: Float){
         light = lightValue.toInt()
         Log.d(LOG_TAG, "${light}")
     }
@@ -61,19 +76,34 @@ class BoxDrawingView(context: Context, attrs: AttributeSet? = null) : View(conte
 //            canvas.drawRect(box.left, box.top, box.right, box.bottom, boxPaint)
 //        }
         //canvas.drawCircle(ball.center.x, ball.center.y, ball.radius, greenBrush)
-        canvas.drawRect(box.left, box.top, box.right, box.bottom, greenBrush)
+
+
+        rect.left = box.left.toInt()
+        rect.right = box.right.toInt()
+        rect.top = box.top.toInt()
+        rect.bottom = box.bottom.toInt()
+        if(list_of_dvds_index >= 4){
+            list_of_dvds_index = 0
+        }
+
+        bitmap = BitmapFactory.decodeResource(context.resources, list_of_dvds[list_of_dvds_index])
+
+        canvas.drawRect(box.left, box.top, box.right, box.bottom, boxBrush)
+        canvas.drawBitmap(bitmap, null, rect, boxBrush)
+
+
         updateBoxPosition()
         checkForDark()
     }
 
     private fun checkForDark(){
-        if(light < 20000){
-            backgroundPaint.color = Color.BLACK
-            Log.d(LOG_TAG,"dark mode")
+        if(light < 100){
+            backgroundPaint.color = Color.DKGRAY
+            Log.d(LOG_TAG, "dark mode")
         }
         else{
-            backgroundPaint.color = Color.WHITE
-            Log.d(LOG_TAG,"light mode")
+            backgroundPaint.color = Color.BLUE
+            Log.d(LOG_TAG, "light mode")
         }
         invalidate()
     }
@@ -93,19 +123,30 @@ class BoxDrawingView(context: Context, attrs: AttributeSet? = null) : View(conte
 
         if(box.start.x <= 0f){
             box.start.x = 0f
+            box.end.x = 200f
             boxVelocity.x *= BOUNCE_FACTOR
+            list_of_dvds_index++
+
         }
         if(box.end.x >= width/scaleFactor) {
             box.end.x = (width/scaleFactor)
+            box.start.x = (width/scaleFactor) - 200
             boxVelocity.x *= BOUNCE_FACTOR
+            list_of_dvds_index++
+
         }
         if(box.start.y <= 0f) {
             box.start.y = 0f
+            box.end.y = 200f
             boxVelocity.y *= BOUNCE_FACTOR
+            list_of_dvds_index++
+
         }
         if(box.end.y >= height/scaleFactor) {
             box.end.y = (height/scaleFactor)
+            box.start.y = (height/scaleFactor) - 200
             boxVelocity.y *= BOUNCE_FACTOR
+            list_of_dvds_index++
         }
 
 
