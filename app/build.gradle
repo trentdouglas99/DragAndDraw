@@ -8,7 +8,7 @@ android {
     buildToolsVersion "30.0.3"
 
     defaultConfig {
-        applicationId "com.csci448.trentdouglas.draganddraw"
+        applicationId "com.csci448.trentdouglas.trentdouglas_a4"
         minSdkVersion 25
         targetSdkVersion 30
         versionCode 1

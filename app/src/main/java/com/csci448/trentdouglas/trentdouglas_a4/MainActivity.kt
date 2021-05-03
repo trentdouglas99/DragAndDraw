@@ -1,4 +1,4 @@
-package com.csci448.trentdouglas.draganddraw
+package com.csci448.trentdouglas.trentdouglas_a4
 
 import android.graphics.PointF
 import android.hardware.Sensor
@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import org.intellij.lang.annotations.JdkConstants
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
     private val LOG_TAG = "mainactivity: "

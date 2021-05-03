@@ -1,4 +1,4 @@
-package com.csci448.trentdouglas.draganddraw
+package com.csci448.trentdouglas.trentdouglas_a4
 
 import android.view.ScaleGestureDetector
 

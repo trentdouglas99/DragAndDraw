@@ -1,8 +1,7 @@
-package com.csci448.trentdouglas.draganddraw
+package com.csci448.trentdouglas.trentdouglas_a4
 
 import android.content.Context
 import android.graphics.*
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.AttributeSet
